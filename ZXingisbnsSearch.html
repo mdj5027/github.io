@@ -5,65 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ISBN Scanner with ZXing</title>
     <!-- ZXing 라이브러리 -->
-    <script src="https://unpkg.com/@zxing/browser@latest"></script>
-    <style>
-        #interactive {
-            width: 100%;
-            max-width: 640px;
-            height: auto;
-            margin: 0 auto;
-            position: relative;
-        }
-        #isbnResult {
-            margin-top: 20px;
-        }
-        video {
-            width: 100%;
-            height: auto;
-        }
-    </style>
-</head>
-<body onload="init()">
+    <script type="module">
+        import { BrowserMultiFormatReader } from 'https://cdn.jsdelivr.net/npm/@zxing/browser@latest';
 
-<h1>Scan ISBN Barcode</h1>
+        // 바코드 스캐너 초기화
+        const codeReader = new BrowserMultiFormatReader();
 
-<div id="interactive" class="viewport">
-    <video id="video" autoplay muted playsinline></video>
-</div>
+        window.addEventListener('load', () => {
+            const videoElement = document.getElementById('video');
 
-<p id="isbnResult">ISBN will be displayed here after scanning.</p>
-<div id="bookInfo"></div>
+            // 카메라 장치 목록 가져오기
+            codeReader.listVideoInputDevices().then(videoInputDevices => {
+                if (videoInputDevices.length > 0) {
+                    const firstDeviceId = videoInputDevices[0].deviceId;
 
-<script>
-    function init()
-    {
-        // ZXing 라이브러리에서 BarcodeReader 생성
-        const codeReader = new ZXing.BrowserMultiFormatReader();
-        const videoElement = document.getElementById('video');
-
-        // 카메라로 바코드 스캔 시작
-        codeReader
-            .listVideoInputDevices()
-            .then((videoInputDevices) => {
-                // 후면 카메라 사용 (첫 번째 카메라 선택)
-                const firstDeviceId = videoInputDevices[0].deviceId;
-
-                // 비디오 디바이스로부터 바코드 스캔
-                codeReader.decodeFromVideoDevice(firstDeviceId, videoElement, (result, err) => {
-                    if (result) {
-                        const isbn = result.text;
-                        document.getElementById("isbnResult").innerText = "Scanned ISBN: " + isbn;
-                        fetchBookInfo(isbn);
-                        codeReader.reset(); // 스캔 성공 후 스캐너 멈춤
-                    }
-                    if (err && !(err instanceof ZXing.NotFoundException)) {
-                        console.error(err);
-                    }
-                });
-            })
-            .catch((err) => {
+                    // 카메라로 바코드 스캔 시작
+                    codeReader.decodeFromVideoDevice(firstDeviceId, videoElement, (result, err) => {
+                        if (result) {
+                            const isbn = result.text;
+                            document.getElementById("isbnResult").innerText = "Scanned ISBN: " + isbn;
+                            fetchBookInfo(isbn);
+                            codeReader.reset(); // 스캔 성공 후 스캐너 멈춤
+                        }
+                        if (err && !(err instanceof NotFoundException)) {
+                            console.error(err);
+                        }
+                    });
+                } else {
+                    console.error('No video input devices found');
+                }
+            }).catch(err => {
                 console.error(err);
             });
+        });
 
         // Google Books API로 도서 정보 조회
         function fetchBookInfo(isbn) {
@@ -91,10 +65,34 @@
                 document.getElementById("bookInfo").innerHTML = "<p>Error fetching book information.</p>";
             });
         }
-    }
+    </script>
+    <style>
+        #interactive {
+            width: 100%;
+            max-width: 640px;
+            height: auto;
+            margin: 0 auto;
+            position: relative;
+        }
+        #isbnResult {
+            margin-top: 20px;
+        }
+        video {
+            width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
 
-    
-</script>
+<h1>Scan ISBN Barcode</h1>
+
+<div id="interactive" class="viewport">
+    <video id="video" autoplay muted playsinline></video>
+</div>
+
+<p id="isbnResult">ISBN will be displayed here after scanning.</p>
+<div id="bookInfo"></div>
 
 </body>
 </html>
