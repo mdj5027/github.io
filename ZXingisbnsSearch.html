@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISBN Scanner with ZXing</title>
+    <!-- ZXing 라이브러리 -->
+    <script src="https://unpkg.com/@zxing/browser@latest"></script>
+    <style>
+        #interactive {
+            width: 100%;
+            max-width: 640px;
+            height: auto;
+            margin: 0 auto;
+            position: relative;
+        }
+        #isbnResult {
+            margin-top: 20px;
+        }
+        video {
+            width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Scan ISBN Barcode</h1>
+
+<div id="interactive" class="viewport">
+    <video id="video" autoplay muted playsinline></video>
+</div>
+
+<p id="isbnResult">ISBN will be displayed here after scanning.</p>
+<div id="bookInfo"></div>
+
+<script>
+    // ZXing 바코드 스캐너 초기화
+    const codeReader = new ZXing.BrowserMultiFormatReader();
+    const videoElement = document.getElementById('video');
+
+    // 카메라로 바코드 스캔 시작
+    codeReader.decodeFromVideoDevice(null, videoElement, (result, err) => {
+        if (result) {
+            const isbn = result.text;
+            document.getElementById("isbnResult").innerText = "Scanned ISBN: " + isbn;
+            fetchBookInfo(isbn);
+            codeReader.reset(); // 스캔 성공 후 스캐너 멈춤
+        }
+        if (err && !(err instanceof ZXing.NotFoundException)) {
+            console.error(err);
+        }
+    });
+
+    // Google Books API로 도서 정보 조회
+    function fetchBookInfo(isbn) {
+        const apiUrl = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`;
+
+        fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+            if (data.totalItems > 0) {
+                const book = data.items[0].volumeInfo;
+                document.getElementById("bookInfo").innerHTML = `
+                    <h2>Book Information</h2>
+                    <p><strong>Title:</strong> ${book.title}</p>
+                    <p><strong>Author:</strong> ${book.authors ? book.authors.join(", ") : "Unknown"}</p>
+                    <p><strong>Published Date:</strong> ${book.publishedDate}</p>
+                    <p><strong>Description:</strong> ${book.description ? book.description : "No description available."}</p>
+                    <img src="${book.imageLinks ? book.imageLinks.thumbnail : ''}" alt="Book Cover">
+                `;
+            } else {
+                document.getElementById("bookInfo").innerHTML = "<p>No book found with this ISBN.</p>";
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching book info:', error);
+            document.getElementById("bookInfo").innerHTML = "<p>Error fetching book information.</p>";
+        });
+    }
+</script>
+
+</body>
+</html>
