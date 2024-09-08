@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ISBN Scanner with ZXing</title>
     <!-- ZXing 라이브러리 -->
-    <script src="https://cdn.jsdelivr.net/npm/@zxing/library@latest"></script>
+    <script src="https://unpkg.com/@zxing/browser@latest"></script>
     <style>
         #interactive {
             width: 100%;
@@ -25,7 +25,7 @@
 </head>
 <body>
 
-<h1>Scan ISBN Barcode for ZXing</h1>
+<h1>Scan ISBN Barcode</h1>
 
 <div id="interactive" class="viewport">
     <video id="video" autoplay muted playsinline></video>
@@ -65,31 +65,4 @@
 
     // Google Books API로 도서 정보 조회
     function fetchBookInfo(isbn) {
-        const apiUrl = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`;
-
-        fetch(apiUrl)
-        .then(response => response.json())
-        .then(data => {
-            if (data.totalItems > 0) {
-                const book = data.items[0].volumeInfo;
-                document.getElementById("bookInfo").innerHTML = `
-                    <h2>Book Information</h2>
-                    <p><strong>Title:</strong> ${book.title}</p>
-                    <p><strong>Author:</strong> ${book.authors ? book.authors.join(", ") : "Unknown"}</p>
-                    <p><strong>Published Date:</strong> ${book.publishedDate}</p>
-                    <p><strong>Description:</strong> ${book.description ? book.description : "No description available."}</p>
-                    <img src="${book.imageLinks ? book.imageLinks.thumbnail : ''}" alt="Book Cover">
-                `;
-            } else {
-                document.getElementById("bookInfo").innerHTML = "<p>No book found with this ISBN.</p>";
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching book info:', error);
-            document.getElementById("bookInfo").innerHTML = "<p>Error fetching book information.</p>";
-        });
-    }
-</script>
-
-</body>
-</html>
+        const apiUrl = `https://www.googleapis.com/books/v1
