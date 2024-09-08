@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ISBN Scanner with ZXing</title>
     <!-- ZXing 라이브러리 -->
-    <script src="https://unpkg.com/@zxing/browser@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@zxing/library@latest"></script>
     <style>
         #interactive {
             width: 100%;
@@ -25,7 +25,7 @@
 </head>
 <body>
 
-<h1>Scan ISBN Barcode</h1>
+<h1>Scan ISBN Barcode for ZXing</h1>
 
 <div id="interactive" class="viewport">
     <video id="video" autoplay muted playsinline></video>
@@ -35,22 +35,33 @@
 <div id="bookInfo"></div>
 
 <script>
-    // ZXing 바코드 스캐너 초기화
+    // ZXing 라이브러리에서 BarcodeReader 생성
     const codeReader = new ZXing.BrowserMultiFormatReader();
     const videoElement = document.getElementById('video');
 
     // 카메라로 바코드 스캔 시작
-    codeReader.decodeFromVideoDevice(null, videoElement, (result, err) => {
-        if (result) {
-            const isbn = result.text;
-            document.getElementById("isbnResult").innerText = "Scanned ISBN: " + isbn;
-            fetchBookInfo(isbn);
-            codeReader.reset(); // 스캔 성공 후 스캐너 멈춤
-        }
-        if (err && !(err instanceof ZXing.NotFoundException)) {
+    codeReader
+        .listVideoInputDevices()
+        .then((videoInputDevices) => {
+            // 후면 카메라 사용 (첫 번째 카메라 선택)
+            const firstDeviceId = videoInputDevices[0].deviceId;
+
+            // 비디오 디바이스로부터 바코드 스캔
+            codeReader.decodeFromVideoDevice(firstDeviceId, videoElement, (result, err) => {
+                if (result) {
+                    const isbn = result.text;
+                    document.getElementById("isbnResult").innerText = "Scanned ISBN: " + isbn;
+                    fetchBookInfo(isbn);
+                    codeReader.reset(); // 스캔 성공 후 스캐너 멈춤
+                }
+                if (err && !(err instanceof ZXing.NotFoundException)) {
+                    console.error(err);
+                }
+            });
+        })
+        .catch((err) => {
             console.error(err);
-        }
-    });
+        });
 
     // Google Books API로 도서 정보 조회
     function fetchBookInfo(isbn) {
