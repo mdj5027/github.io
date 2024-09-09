@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISBN Scanner using ZXing</title>
+    <!-- ZXing 라이브러리 -->
+    <script type="module">
+        import { BrowserMultiFormatReader } from 'https://cdn.jsdelivr.net/npm/@zxing/browser@latest';
+
+        // 페이지 로드 시 스캐너 초기화
+        window.addEventListener('load', () => {
+            const codeReader = new BrowserMultiFormatReader();
+            const videoElement = document.getElementById('video');
+            const isbnResult = document.getElementById('isbnResult');
+            
+            // 카메라 장치 목록 가져오기
+            codeReader.listVideoInputDevices().then((videoInputDevices) => {
+                if (videoInputDevices.length > 0) {
+                    const firstDeviceId = videoInputDevices[0].deviceId;
+                    
+                    // 카메라로 바코드 스캔 시작
+                    codeReader.decodeFromVideoDevice(firstDeviceId, videoElement, (result, err) => {
+                        if (result) {
+                            // 스캔된 바코드를 화면에 표시
+                            isbnResult.textContent = "Scanned ISBN: " + result.text;
+                            console.log(result);
+                            // 필요한 작업 수행
+                            fetchBookInfo(result.text);
+                        }
+                        if (err && !(err instanceof ZXing.NotFoundException)) {
+                            console.error(err);
+                        }
+                    });
+                } else {
+                    console.error("No video input devices found");
+                }
+            }).catch((err) => {
+                console.error(err);
+            });
+        });
+
+        // Google Books API를 통해 도서 정보 조회
+        function fetchBookInfo(isbn) {
+            const apiUrl = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`;
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.totalItems > 0) {
+                        const book = data.items[0].volumeInfo;
+                        document.getElementById("bookInfo").innerHTML = `
+                            <h2>Book Information</h2>
+                            <p><strong>Title:</strong> ${book.title}</p>
+                            <p><strong>Author:</strong> ${book.authors ? book.authors.join(", ") : "Unknown"}</p>
+                            <p><strong>Published Date:</strong> ${book.publishedDate}</p>
+                            <p><strong>Description:</strong> ${book.description ? book.description : "No description available."}</p>
+                            <img src="${book.imageLinks ? book.imageLinks.thumbnail : ''}" alt="Book Cover">
+                        `;
+                    } else {
+                        document.getElementById("bookInfo").innerHTML = "<p>No book found with this ISBN.</p>";
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching book info:', error);
+                    document.getElementById("bookInfo").innerHTML = "<p>Error fetching book information.</p>";
+                });
+        }
+    </script>
+    <style>
+        #interactive {
+            width: 100%;
+            max-width: 640px;
+            height: auto;
+            margin: 0 auto;
+            position: relative;
+        }
+        #isbnResult {
+            margin-top: 20px;
+        }
+        video {
+            width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Scan ISBN Barcode</h1>
+
+<div id="interactive" class="viewport">
+    <video id="video" autoplay muted playsinline></video>
+</div>
+
+<p id="isbnResult">ISBN will be displayed here after scanning.</p>
+<div id="bookInfo"></div>
+
+</body>
+</html>
