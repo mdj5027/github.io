@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISBN 검색</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        #video {
+            width: 100%;
+            max-width: 400px;
+        }
+        #isbn {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>ISBN 검색</h1>
+    <video id="video" autoplay></video>
+    <div id="isbn">ISBN: <span id="isbn-value"></span></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+    <script>
+        Quagga.init({
+            inputStream: {
+                name: "Live",
+                type: "LiveStream",
+                target: document.querySelector('#video')
+            },
+            decoder: {
+                readers: ["ean_reader"]
+            }
+        }, function(err) {
+            if (err) {
+                console.log(err);
+                return;
+            }
+            Quagga.start();
+        });
+
+        Quagga.onDetected(function(data) {
+            var isbn = data.codeResult.code;
+            document.getElementById('isbn-value').textContent = isbn;
+            // 여기서 ISBN을 이용해 도서 정보를 검색하는 코드를 추가할 수 있습니다.
+        });
+    </script>
+</body>
+</html>
