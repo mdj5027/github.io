@@ -29,7 +29,10 @@
             inputStream: {
                 name: "Live",
                 type: "LiveStream",
-                target: document.querySelector('#video')
+                target: document.querySelector('#video'),
+                constraints: {
+                    facingMode: "environment" // 후면 카메라 사용
+                }
             },
             decoder: {
                 readers: ["ean_reader"]
