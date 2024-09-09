@@ -24,7 +24,7 @@
     <h1>ISBN 검색</h1>
     <div id="reader"></div>
     <div id="isbn">ISBN: <span id="isbn-value"></span></div>
-    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <script>
         function onScanSuccess(decodedText, decodedResult) {
             document.getElementById('isbn-value').textContent = decodedText;
