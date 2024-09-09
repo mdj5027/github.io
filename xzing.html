@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/@zxing/library@latest"></script>
     <title>ISBN Scanner using ZXing</title>
     <!-- ZXing 라이브러리 -->
     <script type="module">
-        import { BrowserMultiFormatReader } from 'https://cdn.jsdelivr.net/npm/@zxing/library@latest';
+        //import { BrowserMultiFormatReader } from 'https://cdn.jsdelivr.net/npm/@zxing/library@latest';
         
         // 페이지 로드 시 스캐너 초기화
         window.addEventListener('load', () => {
-            const codeReader = new BrowserMultiFormatReader();
+            const codeReader = new ZXing.BrowserMultiFormatReader();
             const videoElement = document.getElementById('video');
             const isbnResult = document.getElementById('isbnResult');
             
