@@ -21,7 +21,7 @@
                     const firstDeviceId = videoInputDevices[0].deviceId;
                     
                     // 카메라로 바코드 스캔 시작
-                    codeReader.decodeFromVideoDevice(1, videoElement, (result, err) => {
+                    codeReader.decodeFromVideoDevice(undefined, videoElement, (result, err) => {
                         if (result) {
                             // 스캔된 바코드를 화면에 표시
                             isbnResult.textContent = "Scanned ISBN: " + result.text;
