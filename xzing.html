@@ -32,7 +32,7 @@
                         if (err && !(err instanceof ZXing.NotFoundException)) {
                             console.error(err);
                         }
-                    });
+                    }, { tryHarder: true });
                 } else {
                     console.error("No video input devices found");
                 }
@@ -56,6 +56,8 @@
                 console.log("Error: " + err);
             });
         });
+
+ 
 
         // Google Books API를 통해 도서 정보 조회
         function fetchBookInfo(isbn) {
