@@ -39,25 +39,7 @@
             }).catch((err) => {
                 console.error(err);
             });
-
-            // 후면 카메라 사용 설정 및 해상도 조정
-            navigator.mediaDevices.getUserMedia({ 
-                video: { 
-                    facingMode: "environment", 
-                    width: { ideal: 1280 }, 
-                    height: { ideal: 720 } 
-                } 
-            })
-            .then(function(stream) {
-                var video = document.getElementById('video');
-                video.srcObject = stream;
-            })
-            .catch(function(err) {
-                console.log("Error: " + err);
-            });
         });
-
- 
 
         // Google Books API를 통해 도서 정보 조회
         function fetchBookInfo(isbn) {
@@ -105,7 +87,7 @@
 </head>
 <body>
 
-<h1>Scan ISBN Barcode X...</h1>
+<h1>Scan ISBN Barcode X1</h1>
 
 <div id="interactive" class="viewport">
     <video id="video" autoplay muted playsinline></video>
